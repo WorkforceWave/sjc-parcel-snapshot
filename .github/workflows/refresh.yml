@@ -1,0 +1,41 @@
+name: Refresh parcel snapshot
+
+# The county exports at 23:30 UTC daily; we pull fifteen minutes later.
+# If their export failed, scripts/refresh.py exits non-zero and commits nothing,
+# so the last good snapshot stays in place and this run shows up as a failure.
+on:
+  schedule:
+    - cron: "45 23 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pull and reduce the county file
+        run: python scripts/refresh.py
+
+      - name: Commit if the snapshot changed
+        run: |
+          if git diff --quiet -- sjc_parcels.csv.gz meta.json; then
+            echo "snapshot unchanged — nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sjc_parcels.csv.gz meta.json
+          git commit -m "chore: refresh parcel snapshot ($(python -c 'import json;print(json.load(open("meta.json"))["rows"])') rows)"
+          git push

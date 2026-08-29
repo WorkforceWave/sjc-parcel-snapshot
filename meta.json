@@ -1,0 +1,19 @@
+{
+  "rows": 263370,
+  "tax_years": [
+    "2026"
+  ],
+  "bytes_gz": 6035309,
+  "source_url": "https://app.sjgov.org/ttc/parceladdress.txt",
+  "source_last_modified": "Fri, 28 Aug 2026 23:30:17 GMT",
+  "generated_at": "2026-08-29T17:51:02+00:00",
+  "columns": [
+    "assessment",
+    "parcel_dashes",
+    "roll_category",
+    "address",
+    "city_state_zip",
+    "bill_url",
+    "assessment_dashes"
+  ]
+}
